@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦅 鹰猎系统实验室 v5</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#090d12;--card:#121922;--card2:#0d141c;--line:#263240;--text:#f4f6f8;--muted:#8e9aa8;--gold:#d9ad55;--gold2:#f2ce7a;--green:#43d28a;--red:#ff6d70;--blue:#70adff;--orange:#e7a24d}
+body{margin:0;background:radial-gradient(circle at 50% -10%,#202d3d 0,#0b1016 40%,#070a0e 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.wrap{max-width:900px;margin:auto;padding:18px 15px 45px}
+.card{background:linear-gradient(145deg,rgba(20,29,40,.98),rgba(13,19,27,.98));border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:13px;box-shadow:0 12px 35px rgba(0,0,0,.22)}
+.hero{padding:24px 20px;overflow:hidden;position:relative}
+.hero:after{content:"🦅";position:absolute;right:12px;top:-15px;font-size:95px;opacity:.055;transform:rotate(-8deg)}
+.badge{color:var(--gold2);font-size:11px;font-weight:900;letter-spacing:1px}
+h1{font-size:26px;margin:7px 0}.sub,.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:13px}
+.nav button{background:#121922;border:1px solid var(--line);color:#9da9b6;padding:10px 5px;font-size:12px}
+.nav button.active{background:#211b11;color:var(--gold2);border-color:#6b532a}
+.section{display:none}.section.active{display:block}
+h2{font-size:17px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:11px;color:var(--muted);margin:0 0 6px}
+input,select,textarea,button{font:inherit;border-radius:11px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #303d4b;background:#0b1118;color:var(--text);outline:none}
+textarea{min-height:72px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,173,85,.1)}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.choice input{display:none}.choice label{padding:11px;text-align:center;border:1px solid #303d4b;border-radius:11px;background:#0b1118;color:#aab5c0;cursor:pointer;font-weight:800;font-size:12px}
+.choice input:checked+label{border-color:var(--gold);background:#241e12;color:var(--gold2)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+button{width:100%;padding:11px;border:1px solid transparent;font-weight:800;cursor:pointer}
+.primary{background:linear-gradient(135deg,#e2b85e,#b8862f);color:#11151a}.secondary{background:#202a36;color:#e8edf2;border-color:#344252}.news{background:#142a45;color:#91c1ff;border-color:#24598f}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.stat{background:#0a1016;border:1px solid #26323f;border-radius:13px;padding:10px 5px;text-align:center}.stat small{display:block;color:var(--muted);font-size:10px}.stat b{display:block;font-size:20px;margin-top:3px}
+.win{color:var(--green)}.loss{color:var(--red)}.gold{color:var(--gold2)}
+.progress{margin-top:13px}.progressTop{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.bar{height:8px;border-radius:99px;background:#080c11;border:1px solid #25303b;margin-top:6px;overflow:hidden}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#9e742c,#f1ce79);transition:.2s}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hunt{background:#0a1016;border:1px solid #273340;border-radius:15px;padding:14px}.hunt h3{margin:0 0 10px;font-size:14px}.hunt .big{font-size:27px;font-weight:900}.hunt p{margin:4px 0;color:var(--muted);font-size:11px}
+.tableWrap{overflow:auto;border:1px solid #26323f;border-radius:14px}.table{width:100%;border-collapse:collapse;min-width:650px;font-size:11px}.table th,.table td{padding:10px 8px;border-bottom:1px solid #202a35;text-align:left}.table th{color:var(--muted);background:#0a1016}.table td{color:#dfe5eb}.delete{width:auto;padding:5px 8px;border-radius:8px;background:transparent;border-color:#553034;color:#ff9292;font-size:10px}
+.note{padding:10px 12px;background:#0c131b;border:1px solid #26323f;border-radius:12px;color:#aab5c0;font-size:11px;line-height:1.6;margin-top:10px}
+.empty{padding:18px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:700px){.stats{grid-template-columns:repeat(3,1fr)}.nav{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.grid,.actions,.compare{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:23px}}
+
+.methodBars{margin-top:14px}.methodRow{margin:12px 0}.methodHead{display:flex;justify-content:space-between;font-size:12px;color:#cbd3dc;margin-bottom:6px}.methodTrack{height:12px;background:#080c11;border:1px solid #25303b;border-radius:99px;overflow:hidden}.methodFill{height:100%;width:0;background:linear-gradient(90deg,#9e742c,#f1ce79);transition:.25s}
+
+#saveStatus{color:#b8c3cf}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card hero">
+  <div class="badge">EAGLE HUNT SYSTEM · CONTROL TRADING</div>
+  <h1>🦅 鹰猎系统实验室 <span class="gold">v5</span></h1>
+  <div class="sub">100笔预判实验 · 平衡猎空间 · 趋势猎控制权 · 转换不猎</div>
+</div>
+
+<div class="nav">
+  <button class="active" onclick="tab('home',this)">🏠 仪表盘</button>
+  <button onclick="tab('record',this)">📝 记录交易</button>
+  <button onclick="tab('analysis',this)">📊 数据分析</button>
+  <button onclick="tab('logs',this)">📋 全部记录</button>
+</div>
+
+<section id="home" class="section active">
+<div class="card">
+<h2>100笔实验总览</h2>
+<div class="stats">
+<div class="stat"><small>交易数</small><b id="total">0</b></div><div class="stat"><small>胜</small><b id="wins" class="win">0</b></div><div class="stat"><small>负</small><b id="losses" class="loss">0</b></div><div class="stat"><small>胜率</small><b id="rate">0%</b></div><div class="stat"><small>最长连赢</small><b id="winStreak" class="win">0</b></div><div class="stat"><small>最长连亏</small><b id="lossStreak" class="loss">0</b></div>
+</div>
+<div class="progress"><div class="progressTop"><span>实验进度</span><span id="progressText">0 / 100</span></div><div class="bar"><span id="progress"></span></div></div>
+</div>
+
+<div class="card">
+<h2>⚔️ 两套猎法</h2>
+<div class="compare">
+<div class="hunt"><h3>🟢 平衡猎法</h3><div class="big" id="balRate">—</div><p><span id="balTotal">0</span> 笔 · 胜 <span id="balWins">0</span> · 负 <span id="balLosses">0</span></p></div>
+<div class="hunt"><h3>🔴 趋势猎法</h3><div class="big" id="trendRate">—</div><p><span id="trendTotal">0</span> 笔 · 胜 <span id="trendWins">0</span> · 负 <span id="trendLosses">0</span></p></div>
+</div>
+<div class="note">平衡与趋势独立统计。转换只是市场状态标签，不计入猎法。</div>
+</div>
+</section>
+
+<section id="record" class="section">
+<div class="card">
+<h2>📝 记录一笔预判交易</h2>
+<div class="grid">
+<div><label>日期</label><input id="date" type="date"></div>
+<div><label>品种</label><input id="symbol" value="GBPUSD"></div>
+</div>
+<div style="margin-top:11px"><label>选择猎法</label><div class="choice">
+<input type="radio" id="mBal" name="method" value="平衡猎法" checked><label for="mBal">🟢 平衡猎法</label>
+<input type="radio" id="mTrend" name="method" value="趋势猎法"><label for="mTrend">🔴 趋势猎法</label>
+</div></div>
+<div class="grid" style="margin-top:11px">
+<div><label>4H 市场状态</label><select id="state"><option>平衡</option><option>趋势</option><option>转换</option></select></div>
+<div><label>方向</label><select id="side"><option>空</option><option>多</option></select></div>
+<div><label>开仓价</label><input id="entry" placeholder="例如 1.33742"></div>
+<div><label>结果</label><select id="result"><option>胜</option><option>负</option></select></div>
+<div><label>新闻环境</label><select id="news"><option>无重大新闻</option><option>有重大新闻</option><option>不确定</option></select></div>
+<div id="positionWrap"><label id="positionLabel">位置</label><select id="position"><option>支撑</option><option>阻力</option><option>区间内部</option></select></div>
+</div>
+<div style="margin-top:11px"><label>预判理由（一句话）</label><textarea id="note" placeholder="例如：4H空头结构，回到前支撑转阻力，直接预判空。"></textarea></div>
+<div class="actions"><button class="primary" onclick="saveTrade()">🦅 保存预判</button><button class="news" onclick="window.open('https://www.jin10.com/','_blank')">📰 金十数据</button></div>
+</div>
+</section>
+
+<section id="analysis" class="section">
+<div class="card"><h2>📊 猎法拆分 · 核心实验数据</h2>
+<div class="compare">
+<div class="hunt"><h3>🟢 平衡猎法</h3><p>交易 <b id="aBalTotal">0</b></p><p>胜 <b class="win" id="aBalWin">0</b> · 负 <b class="loss" id="aBalLoss">0</b></p><p>胜率 <b class="gold" id="aBalRate">—</b></p><p>最长连赢 <b id="aBalWinStreak">0</b> · 连亏 <b id="aBalLossStreak">0</b></p></div>
+<div class="hunt"><h3>🔴 趋势猎法</h3><p>交易 <b id="aTrendTotal">0</b></p><p>胜 <b class="win" id="aTrendWin">0</b> · 负 <b class="loss" id="aTrendLoss">0</b></p><p>胜率 <b class="gold" id="aTrendRate">—</b></p><p>最长连赢 <b id="aTrendWinStreak">0</b> · 连亏 <b id="aTrendLossStreak">0</b></p></div>
+</div></div>
+
+
+<div class="card">
+  <h2>🎯 鹰猎适配观察</h2>
+  <div class="compare">
+    <div class="hunt">
+      <h3>🟢 平衡猎法</h3>
+      <div class="big gold" id="fitBalRate">—</div>
+      <p>样本 <span id="fitBalN">0</span> 笔</p>
+      <p>胜 <span class="win" id="fitBalW">0</span> · 负 <span class="loss" id="fitBalL">0</span></p>
+    </div>
+    <div class="hunt">
+      <h3>🔴 趋势猎法</h3>
+      <div class="big gold" id="fitTrendRate">—</div>
+      <p>样本 <span id="fitTrendN">0</span> 笔</p>
+      <p>胜 <span class="win" id="fitTrendW">0</span> · 负 <span class="loss" id="fitTrendL">0</span></p>
+    </div>
+  </div>
+  <div class="methodBars">
+    <div class="methodRow"><div class="methodHead"><span>平衡猎法胜率</span><b id="fitBalBarText">—</b></div><div class="methodTrack"><div class="methodFill" id="fitBalBar"></div></div></div>
+    <div class="methodRow"><div class="methodHead"><span>趋势猎法胜率</span><b id="fitTrendBarText">—</b></div><div class="methodTrack"><div class="methodFill" id="fitTrendBar"></div></div></div>
+  </div>
+  <div class="note" id="saveStatus">💾 数据自动保存中</div><div class="note" id="fitNote">目前还没有足够数据。先把100笔预判跑完，再看两套猎法的真实统计差异。</div>
+</div>
+
+<div class="card"><h2>🛡️ 数据安全</h2>
+<div class="note">每次新增或删除都会自动保存到浏览器本地。建议每完成10～20笔就点「下载备份」，这样即使浏览器清理本地网页数据，也能用 JSON 一次恢复全部记录。</div>
+</div>
+<div class="card"><h2>🧪 系统纪律</h2>
+<div class="note">每一笔都固定为预判型。记录时不要为了结果修改开仓理由；这样100笔结束后，数据才有实验价值。</div>
+</div>
+</section>
+
+<section id="logs" class="section">
+<div class="card"><h2>📋 全部交易记录</h2>
+<div class="actions"><button class="secondary" onclick="exportData()">💾 导出 JSON</button><button class="secondary" onclick="downloadBackup()">🛡️ 下载备份</button><button class="secondary" onclick="importData()">📥 导入 JSON</button></div>
+<input id="fileInput" type="file" accept=".json" style="display:none">
+<div id="logsTable" style="margin-top:12px"></div>
+</div>
+</section>
+</div>
+
+<script>
+const KEY="eagle_hunt_data_v7";
+const BACKUP_KEY="eagle_hunt_backup_v7";
+const OLD_KEYS=["eagle_hunt_preemptive_v5","eagle_hunt_preemptive_v3","eagle_hunt_data_v6"];
+let trades=[];
+function loadStoredData(){
+  try{
+    const current=localStorage.getItem(KEY);
+    if(current){
+      const d=JSON.parse(current);
+      if(Array.isArray(d)) return d;
+    }
+    for(const k of OLD_KEYS){
+      const raw=localStorage.getItem(k);
+      if(raw){
+        const d=JSON.parse(raw);
+        if(Array.isArray(d)){
+          localStorage.setItem(KEY,JSON.stringify(d));
+          return d;
+        }
+      }
+    }
+  }catch(e){}
+  return [];
+}
+trades=loadStoredData();
+const $=id=>document.getElementById(id);
+$("date").value=new Date(new Date().getTime()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+
+document.querySelectorAll('input[name="method"]').forEach(x=>x.addEventListener("change",()=>{
+  const isBal=$("mBal").checked;
+  $("positionLabel").textContent=isBal?"位置（平衡）":"回撤/预判位置（趋势）";
+  $("position").innerHTML=isBal
+    ? '<option>支撑</option><option>阻力</option><option>区间内部</option>'
+    : '<option>前结构位</option><option>EMA附近</option><option>支撑阻力转化</option>';
+}));
+
+
+function saveData(){
+  try{
+    const payload=JSON.stringify(trades);
+    localStorage.setItem(KEY,payload);
+    localStorage.setItem(BACKUP_KEY,payload);
+    $("saveStatus").textContent="💾 已自动保存 · "+new Date().toLocaleString();
+  }catch(e){
+    $("saveStatus").textContent="⚠️ 自动保存失败，请立即导出 JSON 备份";
+  }
+}
+function downloadBackup(){
+  const blob=new Blob([JSON.stringify(trades,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="鹰猎系统_自动备份_"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function tab(id,btn){
+  document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+  $(id).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+function streakData(arr){
+  let w=0,l=0,wm=0,lm=0;
+  arr.forEach(x=>{if(x.result==="胜"){w++;l=0;wm=Math.max(wm,w)}else{l++;w=0;lm=Math.max(lm,l)}});
+  return {w:wm,l:lm};
+}
+function rate(arr){return arr.length?Math.round(arr.filter(x=>x.result==="胜").length/arr.length*100)+"%":"—"}
+function renderHunt(prefix,arr){
+  const wins=arr.filter(x=>x.result==="胜").length;
+  $(prefix+"Total").textContent=arr.length;
+  $(prefix+"Win").textContent=wins;
+  $(prefix+"Loss").textContent=arr.length-wins;
+  $(prefix+"Rate").textContent=rate(arr);
+  const s=streakData(arr);
+  $(prefix+"WinStreak").textContent=s.w;
+  $(prefix+"LossStreak").textContent=s.l;
+}
+function saveTrade(){
+  const method=document.querySelector('input[name="method"]:checked').value;
+  const t={id:Date.now()+Math.random(),date:$("date").value,symbol:$("symbol").value.trim()||"GBPUSD",method,
+    state:$("state").value,side:$("side").value,entry:$("entry").value.trim(),result:$("result").value,
+    news:$("news").value,position:$("position").value,note:$("note").value.trim(),entryType:"预判型"};
+  if(!t.note){alert("请写一句预判理由。");return}
+  trades.push(t);saveData();
+  $("entry").value="";$("note").value="";render();
+  alert("已保存 · 当前 "+trades.length+"/100");
+}
+function deleteTrade(i){
+  if(!confirm("确定删除这笔记录吗？"))return;
+  trades.splice(i,1);saveData();render();
+}
+function render(){
+  const wins=trades.filter(x=>x.result==="胜").length;
+  $("total").textContent=trades.length;$("wins").textContent=wins;$("losses").textContent=trades.length-wins;
+  $("rate").textContent=rate(trades);
+  const s=streakData(trades);$("winStreak").textContent=s.w;$("lossStreak").textContent=s.l;
+  $("progress").style.width=Math.min(100,trades.length)+"%";$("progressText").textContent=Math.min(100,trades.length)+" / 100";
+
+  const bal=trades.filter(x=>x.method==="平衡猎法"), trend=trades.filter(x=>x.method==="趋势猎法");
+  $("balRate").textContent=rate(bal);$("balTotal").textContent=bal.length;$("balWins").textContent=bal.filter(x=>x.result==="胜").length;$("balLosses").textContent=bal.filter(x=>x.result==="负").length;
+  $("trendRate").textContent=rate(trend);$("trendTotal").textContent=trend.length;$("trendWins").textContent=trend.filter(x=>x.result==="胜").length;$("trendLosses").textContent=trend.filter(x=>x.result==="负").length;
+  renderHunt("aBal",bal);renderHunt("aTrend",trend);
+  $("fitBalRate").textContent=rate(bal); $("fitBalN").textContent=bal.length;
+  $("fitBalW").textContent=bal.filter(x=>x.result==="胜").length; $("fitBalL").textContent=bal.filter(x=>x.result==="负").length;
+  $("fitTrendRate").textContent=rate(trend); $("fitTrendN").textContent=trend.length;
+  $("fitTrendW").textContent=trend.filter(x=>x.result==="胜").length; $("fitTrendL").textContent=trend.filter(x=>x.result==="负").length;
+  const balPct=bal.length?bal.filter(x=>x.result==="胜").length/bal.length*100:0;
+  const trendPct=trend.length?trend.filter(x=>x.result==="胜").length/trend.length*100:0;
+  $("fitBalBar").style.width=balPct+"%"; $("fitTrendBar").style.width=trendPct+"%";
+  $("fitBalBarText").textContent=bal.length?Math.round(balPct)+"%":"—";
+  $("fitTrendBarText").textContent=trend.length?Math.round(trendPct)+"%":"—";
+  if(!bal.length && !trend.length){
+    $("fitNote").textContent="目前还没有数据。先记录交易，100笔完成后再用统计结果判断两套猎法与你的交易表现是否存在明显差异。";
+  }else if(bal.length<20 || trend.length<20){
+    $("fitNote").textContent="目前样本还少（建议两套猎法各至少20笔再观察差异）。现在只显示客观统计，不提前下结论。";
+  }else{
+    const diff=Math.abs(balPct-trendPct);
+    $("fitNote").textContent="两套猎法目前相差 "+Math.round(diff)+" 个百分点。继续累积样本；100笔完成后，再结合连赢、连亏和执行纪律一起分析。";
+  }
+
+  if(!trades.length){$("logsTable").innerHTML='<div class="empty">还没有交易记录。先去「记录交易」开始第一笔。</div>';return}
+  $("logsTable").innerHTML='<div class="tableWrap"><table class="table"><thead><tr><th>#</th><th>日期</th><th>猎法</th><th>状态</th><th>方向</th><th>开仓</th><th>位置</th><th>新闻</th><th>结果</th><th>理由</th><th></th></tr></thead><tbody>'+
+  trades.slice().reverse().map((x,rev)=>{const i=trades.length-1-rev;return '<tr><td>'+(i+1)+'</td><td>'+esc(x.date)+'</td><td>'+esc(x.method)+'</td><td>'+esc(x.state)+'</td><td>'+esc(x.side)+'</td><td>'+esc(x.entry||"-")+'</td><td>'+esc(x.position)+'</td><td>'+esc(x.news)+'</td><td class="'+(x.result==="胜"?"win":"loss")+'"><b>'+esc(x.result)+'</b></td><td>'+esc(x.note)+'</td><td><button class="delete" onclick="deleteTrade('+i+')">删除</button></td></tr>'}).join("")+'</tbody></table></div>';
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function exportData(){
+  $("saveStatus").textContent="💾 正在导出数据…";
+  const blob=new Blob([JSON.stringify(trades,null,2)],{type:"application/json"});const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download="鹰猎系统_v5_100笔预判实验备份.json";a.click();URL.revokeObjectURL(a.href);
+}
+function importData(){$("fileInput").click()}
+$("fileInput").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d))throw 0;trades=d;saveData();render();alert("导入成功，共 "+trades.length+" 笔。")}catch(_){alert("JSON 格式不正确。")}};
+  r.readAsText(f);
+});
+render();
+if(trades.length){
+  $("saveStatus").textContent="💾 已恢复 "+trades.length+" 笔本地记录";
+}else{
+  $("saveStatus").textContent="💾 已准备好自动保存";
+}
+</script>
+</body>
+</html>
